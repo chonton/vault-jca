@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.honton.chas</groupId>
+  <artifactId>vault-jca</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <inceptionYear>2023</inceptionYear>
+
+  <licenses>
+    <license>
+      <name>Apache-2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <name>chas honton</name>
+      <email>chas@honton.org</email>
+      <url>https://www.linkedin.com/in/chonton</url>
+    </developer>
+  </developers>
+
+  <prerequisites>
+    <maven>${maven.version}</maven>
+  </prerequisites>
+
+  <scm>
+    <connection>scm:git:git://github.com/chonton/${project.artifactId}</connection>
+    <developerConnection>scm:git:git@github.com:chonton/${project.artifactId}</developerConnection>
+    <url>https://github.com/chonton/${project.artifactId}</url>
+  </scm>
+
+  <distributionManagement>
+
+    <repository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+
+    <site>
+      <id>github</id>
+      <url>scm:git:ssh://git@github.com/chonton/${project.artifactId}.git</url>
+    </site>
+
+  </distributionManagement>
+
+  <properties>
+    <junit.jupiter.version>5.9.2</junit.jupiter.version>
+
+    <maven.compiler.release>11</maven.compiler.release>
+    <maven.compiler.source>${maven.compiler.release}</maven.compiler.source>
+    <maven.compiler.target>${maven.compiler.release}</maven.compiler.target>
+
+    <!-- use org.sonatype.plugins:nexus-staging-maven-plugin instead of org.apache.maven.plugins:maven-deploy-plugin -->
+    <maven.deploy.skip>true</maven.deploy.skip>
+    <!-- use org.apache.maven.plugins:maven-scm-publish-plugin instead of org.apache.maven.plugins:maven-site-plugin -->
+    <maven.site.deploy.skip>true</maven.site.deploy.skip>
+    <maven.version>3.5.4</maven.version>
+
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <vault.docker.version>1.12.3</vault.docker.version>
+  </properties>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.13.4.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>${junit.jupiter.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>${junit.jupiter.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <version>${junit.jupiter.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>1.18.24</version>
+      <scope>provided</scope>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+
+        <plugin>
+          <groupId>io.fabric8</groupId>
+          <artifactId>docker-maven-plugin</artifactId>
+          <version>0.41.0</version>
+          <configuration>
+            <autoCreateCustomNetworks>true</autoCreateCustomNetworks>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>3.0.0</version>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.8.1</version>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>2.8.2</version>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>3.0.0-M2</version>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <version>3.0.0-M5</version>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-gpg-plugin</artifactId>
+          <version>3.0.1</version>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-install-plugin</artifactId>
+          <version>3.0.0-M1</version>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.1.2</version>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>3.4.0</version>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-project-info-reports-plugin</artifactId>
+          <version>3.3.0</version>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>3.0.2</version>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-scm-publish-plugin</artifactId>
+          <version>3.1.0</version>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>3.7.1</version>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>3.2.1</version>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>3.0.0-M5</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.sonatype.plugins</groupId>
+          <artifactId>nexus-staging-maven-plugin</artifactId>
+          <version>1.6.13</version>
+        </plugin>
+
+      </plugins>
+
+    </pluginManagement>
+
+    <plugins>
+
+      <plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <configuration>
+          <images>
+            <image>
+              <alias>vault</alias>
+              <name>vault:${vault.docker.version}</name>
+              <run>
+                <capAdd>IPC_LOCK</capAdd>
+                <env>
+                  <VAULT_ADDR>http://0.0.0.0:8200</VAULT_ADDR>
+                  <VAULT_API_ADDR>http://127.0.0.1:8200</VAULT_API_ADDR>
+                  <!--
+                That's the stupidest combination I've ever heard in my life!
+                That's the kinda thing an idiot would have on his luggage.
+                  - Dark Helmet
+                -->
+                  <VAULT_DEV_ROOT_TOKEN_ID>12345</VAULT_DEV_ROOT_TOKEN_ID>
+                </env>
+                <network>
+                  <mode>custom</mode>
+                  <name>vault</name>
+                  <alias>vault</alias>
+                </network>
+                <ports>
+                  <port>vault.port:8200</port>
+                </ports>
+                <wait>
+                  <log>Vault server started!</log>
+                  <time>5000</time>
+                </wait>
+                <log>
+                  <file>${project.build.directory}/vault.log</file>
+                </log>
+              </run>
+            </image>
+            <image>
+              <alias>vault-setup</alias>
+              <name>vault:${vault.docker.version}</name>
+              <run>
+                <network>
+                  <mode>custom</mode>
+                  <name>vault</name>
+                </network>
+                <dependsOn>
+                  <container>vault</container>
+                </dependsOn>
+                <wait>
+                  <log>done</log>
+                  <time>20000</time>
+                </wait>
+                <log>
+                  <file>${project.build.directory}/vault-setup.log</file>
+                </log>
+                <entrypoint>
+                  <shell>/bin/sh</shell>
+                </entrypoint>
+                <cmd>
+                  <exec>
+                    <arg>-c</arg>
+                    <arg>source /var/tmp/setup.sh</arg>
+                  </exec>
+                </cmd>
+                <volumes>
+                  <bind>
+                    <volume>${project.build.testOutputDirectory}:/var/tmp</volume>
+                  </bind>
+                </volumes>
+              </run>
+            </image>
+          </images>
+        </configuration>
+        <executions>
+          <execution>
+            <id>pre-integration-test</id>
+            <goals>
+              <goal>start</goal>
+            </goals>
+            <phase>pre-integration-test</phase>
+          </execution>
+          <execution>
+            <id>post-integration-test</id>
+            <goals>
+              <goal>stop</goal>
+            </goals>
+            <phase>post-integration-test</phase>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce-maven</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireJavaVersion>
+                  <version>[11,)</version>
+                </requireJavaVersion>
+                <requireMavenVersion>
+                  <version>[3.5,)</version>
+                </requireMavenVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>integration-tests</id>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <environmentVariables combine.children="append">
+            <!--suppress UnresolvedMavenProperty -->
+            <VAULT_PORT>${vault.port}</VAULT_PORT>
+          </environmentVariables>
+        </configuration>
+      </plugin>
+
+      <!-- publish site with 'mvn site-deploy' -->
+      <plugin>
+        <artifactId>maven-scm-publish-plugin</artifactId>
+        <configuration>
+          <content>${project.reporting.outputDirectory}</content>
+          <pubScmUrl>scm:git:git@github.com:chonton/${project.artifactId}.git</pubScmUrl>
+          <scmBranch>gh-pages</scmBranch>
+          <tryUpdate>true</tryUpdate>
+        </configuration>
+        <executions>
+          <execution>
+            <id>scm-publish</id>
+            <goals>
+              <goal>publish-scm</goal>
+            </goals>
+            <phase>site-deploy</phase>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-site-plugin</artifactId>
+        <configuration>
+          <skipDeploy>true</skipDeploy>
+        </configuration>
+      </plugin>
+
+    </plugins>
+  </build>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>index</report>
+              <report>team</report>
+              <report>licenses</report>
+              <report>dependency-info</report>
+              <report>dependency-management</report>
+              <report>distribution-management</report>
+              <report>plugin-management</report>
+              <report>ci-management</report>
+              <report>scm</report>
+              <report>summary</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+    </plugins>
+  </reporting>
+
+  <profiles>
+    <!-- release to maven central
+    mvn clean deploy -P release
+    -->
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+
+          <plugin>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+                <phase>verify</phase>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <artifactId>maven-source-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.sonatype.plugins</groupId>
+            <artifactId>nexus-staging-maven-plugin</artifactId>
+            <extensions>true</extensions>
+            <configuration>
+              <autoReleaseAfterClose>true</autoReleaseAfterClose>
+              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+              <serverId>ossrh</serverId>
+            </configuration>
+          </plugin>
+
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+</project>
