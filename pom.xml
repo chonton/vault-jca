@@ -80,6 +80,20 @@
     </dependency>
 
     <dependency>
+      <groupId>com.github.tomakehurst</groupId>
+      <artifactId>wiremock-jre8</artifactId>
+      <version>2.35.0</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.bitbucket.b_c</groupId>
+      <artifactId>jose4j</artifactId>
+      <version>0.7.6</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
       <version>${junit.jupiter.version}</version>
@@ -324,6 +338,12 @@
 
       <plugin>
         <artifactId>maven-failsafe-plugin</artifactId>
+        <configuration>
+          <environmentVariables>
+            <!--suppress UnresolvedMavenProperty -->
+            <VAULT_PORT>${vault.port}</VAULT_PORT>
+          </environmentVariables>
+        </configuration>
         <executions>
           <execution>
             <id>integration-tests</id>
@@ -333,12 +353,6 @@
             </goals>
           </execution>
         </executions>
-        <configuration>
-          <environmentVariables combine.children="append">
-            <!--suppress UnresolvedMavenProperty -->
-            <VAULT_PORT>${vault.port}</VAULT_PORT>
-          </environmentVariables>
-        </configuration>
       </plugin>
 
       <!-- publish site with 'mvn site-deploy' -->
