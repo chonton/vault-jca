@@ -112,9 +112,9 @@ public enum SignatureAlgorithm {
 
     VaultKeyAlgorithm vaultKeyAlgorithm(String shaSize) {
       switch (shaSize) {
-        case "2048":
+        case "256":
           return VaultRsaKeyAlgorithm.RSA_2048;
-        case "3072":
+        case "384":
           return VaultRsaKeyAlgorithm.RSA_3072;
         default:
           return VaultRsaKeyAlgorithm.RSA_4096;
