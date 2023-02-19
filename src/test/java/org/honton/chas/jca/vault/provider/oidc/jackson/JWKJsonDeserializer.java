@@ -1,4 +1,4 @@
-package org.honton.chas.jca.vault.provider.jwt.jackson;
+package org.honton.chas.jca.vault.provider.oidc.jackson;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;

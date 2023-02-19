@@ -1,11 +1,10 @@
-package org.honton.chas.jca.vault.provider.jwt;
+package org.honton.chas.jca.vault.provider.oidc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.http.HttpClient;
 import java.security.GeneralSecurityException;
 import java.util.List;
 import org.jose4j.http.Get;
-import org.jose4j.http.SimpleGet;
 import org.jose4j.jwa.AlgorithmConstraints;
 import org.jose4j.jwa.AlgorithmConstraints.ConstraintType;
 import org.jose4j.jwk.HttpsJwks;

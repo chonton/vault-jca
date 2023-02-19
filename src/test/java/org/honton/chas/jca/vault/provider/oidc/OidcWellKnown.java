@@ -1,4 +1,4 @@
-package org.honton.chas.jca.vault.provider.jwt;
+package org.honton.chas.jca.vault.provider.oidc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -15,11 +15,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
-import lombok.Value;
 import lombok.experimental.UtilityClass;
 import lombok.extern.jackson.Jacksonized;
-import org.honton.chas.jca.vault.provider.jwt.jackson.JWKJsonDeserializer;
-import org.honton.chas.jca.vault.provider.jwt.jackson.JWKJsonSerializer;
+import org.honton.chas.jca.vault.provider.oidc.jackson.JWKJsonDeserializer;
+import org.honton.chas.jca.vault.provider.oidc.jackson.JWKJsonSerializer;
 import org.jose4j.jwk.JsonWebKey;
 import org.junit.jupiter.api.Assertions;
 

@@ -1,4 +1,4 @@
-package org.honton.chas.jca.vault.provider.jose;
+package org.honton.chas.jca.vault.provider.oidc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.client.WireMock;
@@ -8,11 +8,7 @@ import java.io.IOException;
 import java.net.http.HttpClient;
 import java.security.GeneralSecurityException;
 import java.util.List;
-import org.honton.chas.jca.vault.provider.jwt.ClientFactory;
-import org.honton.chas.jca.vault.provider.jwt.ConnectProvider;
-import org.honton.chas.jca.vault.provider.jwt.OidcWellKnown;
-import org.honton.chas.jca.vault.provider.jwt.OidcWellKnown.JsonWebKeySet;
-import org.honton.chas.jca.vault.provider.jwt.RelyingParty;
+import org.honton.chas.jca.vault.provider.oidc.OidcWellKnown.JsonWebKeySet;
 import org.jose4j.jwt.GeneralJwtException;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.lang.JoseException;

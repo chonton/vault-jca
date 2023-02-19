@@ -1,4 +1,4 @@
-package org.honton.chas.jca.vault.provider.jwt;
+package org.honton.chas.jca.vault.provider.oidc;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;

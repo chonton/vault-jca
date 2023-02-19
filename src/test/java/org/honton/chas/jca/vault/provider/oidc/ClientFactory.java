@@ -1,4 +1,4 @@
-package org.honton.chas.jca.vault.provider.jwt;
+package org.honton.chas.jca.vault.provider.oidc;
 
 import java.net.http.HttpClient;
 import java.security.GeneralSecurityException;
