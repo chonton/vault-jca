@@ -8,6 +8,21 @@ This provider leverages
 [Vault's transit secrets](https://developer.hashicorp.com/vault/docs/v1.11.x/secrets/transit)
 for implementing KeyStore, KeyPairGenerator, and Signature algorithms.
 
+# Requirements
+
+- Java 11
+- Maven 3.5.4
+
+# Maven Coordinates
+
+```xml
+    <dependency>
+      <groupId>org.honton.chas</groupId>
+      <artifactId>vault-jca</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+```
+
 # Use Cases
 
 ## Register Provider
@@ -104,15 +119,15 @@ for implementing the following algorithms.
 
 | Algorithm Name       | Description                            |
 |----------------------|----------------------------------------|
-| *Deterministic*      | RSA signatures using RSASSA-PKCS1-v1_5 |
+| ___Deterministic___  | RSA signatures using RSASSA-PKCS1-v1_5 |
 | SHA256withRSA        | 2048 bit RSA                           |
 | SHA384withRSA        | 3072 bit RSA                           |
 | SHA512withRSA        | 4096 bit RSA                           |
-| *Randomized*         | RSA signatures using RSASSA-PSS        |
+| ___Randomized___     | RSA signatures using RSASSA-PSS        |
 | SHA256withRSAandMGF1 | 2048 bit RSA, MGF1 salt 256 bits       |
 | SHA384withRSAandMGF1 | 3072 bit RSA, MGF1 salt 384 bits       |
 | SHA512withRSAandMGF1 | 4096 bit RSA, MGF1 salt 512 bits       |
-| *Eliptic Curve*      |                                        |
+| ___Elliptic Curve___ | EC signatures                          |
 | SHA256withECDSA      | 256 bit EC                             |
 | SHA384withECDSA      | 384 bit EC                             |
 | SHA512withECDSA      | 512 bit EC                             |
