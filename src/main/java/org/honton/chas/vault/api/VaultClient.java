@@ -17,6 +17,7 @@ import java.time.Duration;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -41,12 +42,12 @@ public class VaultClient implements VaultApi {
           .build();
 
   public static VaultClient INSTANCE =
-      new VaultClient(getEnvOrProperty("VAULT_ADDR"), getEnvOrProperty("VAULT_TOKEN"));
+      new VaultClient(getEnvOrProperty("VAULT_ADDR"), () -> getEnvOrProperty("VAULT_TOKEN"));
 
   private final String vaultAddress;
-  private final String vaultToken;
+  private final Supplier<String> vaultTokenSupplier;
 
-  static void setVaultInstance(String vaultAddress, String vaultToken) {
+  static void setVaultInstance(String vaultAddress, Supplier<String> vaultToken) {
     INSTANCE = new VaultClient(vaultAddress, vaultToken);
   }
 
@@ -77,12 +78,20 @@ public class VaultClient implements VaultApi {
     return Base64.getMimeDecoder().decode(data);
   }
 
+  public static <T> T walkPath(Object result, String... pathSegments) {
+    for (String pathSegment : pathSegments) {
+      result = ((Map) result).get(pathSegment);
+    }
+    return (T) result;
+  }
+
   @SneakyThrows
   private <T> T send(Builder builder, String url, String... pathSegments) {
     if (vaultAddress == null) {
       throw new IllegalStateException(
           "Set VAULT_ADDR environment or System property or invoke VaultApi.setVaultInstance()");
     }
+    String vaultToken = vaultTokenSupplier.get();
     if (vaultToken == null) {
       throw new IllegalStateException(
           "Set VAULT_TOKEN environment or System property or invoke VaultApi.setVaultInstance()");
@@ -107,7 +116,7 @@ public class VaultClient implements VaultApi {
       return null;
     }
     Object result = OBJECT_MAPPER.readValue(body, Map.class);
-    return VaultApi.walkPath(result, pathSegments);
+    return walkPath(result, pathSegments);
   }
 
   private <T> T post(String url, Object request, String... pathSegments) {

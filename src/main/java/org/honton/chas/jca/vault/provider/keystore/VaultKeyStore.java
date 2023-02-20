@@ -114,7 +114,7 @@ public class VaultKeyStore extends KeyStoreSpi {
       return null;
     }
     Entry<String, Map<String, String>> latestKey = VaultKeyFactory.latestKey(result);
-    return Date.from(Instant.parse(VaultApi.walkPath(latestKey.getValue(), "creation_time")));
+    return Date.from(Instant.parse(VaultClient.walkPath(latestKey.getValue(), "creation_time")));
   }
 
   @Override

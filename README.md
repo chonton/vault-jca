@@ -1,10 +1,10 @@
 # JCA for VAULT
 
 [Java Cryptography Architecture](https://docs.oracle.com/en/java/javase/11/security/java-cryptography-architecture-jca-reference-guide.html)
-provides a way to plug a cryptography provider without modifying the client code. The client will
-need to configure for its use.
+provides a way to plug a cryptography provider without modifying the client code. The client needs
+to register the provider for it to be available through the Security apis.
 
-This security provider leverages
+This provider leverages
 [Vault's transit secrets](https://developer.hashicorp.com/vault/docs/v1.11.x/secrets/transit)
 for implementing KeyStore, KeyPairGenerator, and Signature algorithms.
 
@@ -13,12 +13,12 @@ for implementing KeyStore, KeyPairGenerator, and Signature algorithms.
 ## Register Provider
 
 ```java
-  // Explicity specify vault address and token
-  VaultApi.setVaultInstance(vaultAddress, vaultToken);
-  private static final String providerName = VaultProvider.register().getName();
+    // Explicity specify vault address and token supplier
+    VaultApi.setVaultInstance(vaultAddress, () -> vaultToken);
+    private static final String providerName = VaultProvider.register().getName();
 
-  // Otherwise, use VAULT_ADDR and VAULT_TOKEN environment variables
-  private static final String NAME = VaultProvider.register().getName();
+    // Otherwise, defaul to using VAULT_ADDR and VAULT_TOKEN environment variables
+    private static final String NAME = VaultProvider.register().getName();
 ```
 
 ## KeyStore

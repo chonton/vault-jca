@@ -13,7 +13,7 @@ import org.honton.chas.jca.vault.provider.signature.ecdsa.VaultEcdsaPrivateKey;
 import org.honton.chas.jca.vault.provider.signature.ecdsa.VaultEcdsaPublicKey;
 import org.honton.chas.jca.vault.provider.signature.rsa.VaultRsaPrivateKey;
 import org.honton.chas.jca.vault.provider.signature.rsa.VaultRsaPublicKey;
-import org.honton.chas.vault.api.VaultApi;
+import org.honton.chas.vault.api.VaultClient;
 
 @UtilityClass
 public class VaultKeyFactory {
@@ -29,7 +29,7 @@ public class VaultKeyFactory {
     PublicKey publicKey = getPublicKey(latestKey.getValue());
     int version = Integer.parseInt(latestKey.getKey());
 
-    String type = VaultApi.walkPath(result, "type");
+    String type = VaultClient.walkPath(result, "type");
     if (type.startsWith("rsa-")) {
       return new VaultRsaPublicKey(name, version, (RSAPublicKey) publicKey);
     }
@@ -53,7 +53,7 @@ public class VaultKeyFactory {
   }
 
   public Entry<String, Map<String, String>> latestKey(Map<String, Object> result) {
-    Map<String, Map<String, String>> keys = VaultApi.walkPath(result, "keys");
+    Map<String, Map<String, String>> keys = VaultClient.walkPath(result, "keys");
     return keys.entrySet().stream().reduce(VaultKeyFactory::max).orElseThrow();
   }
 

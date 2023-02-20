@@ -3,18 +3,12 @@ package org.honton.chas.vault.api;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public interface VaultApi {
 
-  static void setVaultInstance(String vaultAddress, String vaultToken) {
+  static void setVaultInstance(String vaultAddress, Supplier<String> vaultToken) {
     VaultClient.setVaultInstance(vaultAddress, vaultToken);
-  }
-
-  static <T> T walkPath(Object result, String... pathSegments) {
-    for (String pathSegment : pathSegments) {
-      result = ((Map) result).get(pathSegment);
-    }
-    return (T) result;
   }
 
   /**
