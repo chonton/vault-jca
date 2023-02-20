@@ -5,9 +5,11 @@
   <groupId>org.honton.chas</groupId>
   <artifactId>vault-jca</artifactId>
   <version>1.0.0</version>
-
   <packaging>jar</packaging>
 
+  <name>Vault Provider for Java Cryptography Architecture</name>
+  <description>KeyStore, KeyPairGenerator, and Signature Algorithms for Vault</description>
+  <url>https://github.com/chonton/${project.artifactId}</url>
   <inceptionYear>2023</inceptionYear>
 
   <licenses>
@@ -17,6 +19,7 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
+
   <developers>
     <developer>
       <name>chas honton</name>
