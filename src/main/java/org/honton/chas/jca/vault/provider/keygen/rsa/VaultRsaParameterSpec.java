@@ -1,15 +1,25 @@
 package org.honton.chas.jca.vault.provider.keygen.rsa;
 
+import java.security.spec.RSAKeyGenParameterSpec;
 import java.time.Duration;
-import org.honton.chas.jca.vault.provider.keygen.VaultParameterSpec;
+import lombok.Getter;
+import org.honton.chas.jca.vault.provider.keygen.VaultKeyInfo;
 
-public class VaultRsaParameterSpec extends VaultParameterSpec<VaultRsaKeyAlgorithm> {
+@Getter
+public class VaultRsaParameterSpec extends RSAKeyGenParameterSpec implements VaultKeyInfo {
 
-  public VaultRsaParameterSpec(String name, VaultRsaKeyAlgorithm keyType) {
-    super(name, keyType, null);
+  private final String keyName;
+  private final String keyType;
+  private final Duration rotation;
+
+  public VaultRsaParameterSpec(String name, VaultRsaKeyType vaultKeyType) {
+    this(name, vaultKeyType, null);
   }
 
-  public VaultRsaParameterSpec(String name, VaultRsaKeyAlgorithm keyType, Duration rotation) {
-    super(name, keyType, rotation);
+  public VaultRsaParameterSpec(String keyName, VaultRsaKeyType keyType, Duration rotation) {
+    super(keyType.getBits(), RSAKeyGenParameterSpec.F0);
+    this.keyName = keyName;
+    this.keyType = keyType.getKeyType();
+    this.rotation = rotation;
   }
 }

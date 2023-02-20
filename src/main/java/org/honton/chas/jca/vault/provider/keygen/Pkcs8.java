@@ -20,8 +20,7 @@ public class Pkcs8 {
     String interesting = pem.substring(start, end);
     byte[] encoded = Base64.getMimeDecoder().decode(interesting);
 
-    KeyFactory kf = KeyFactory.getInstance(interesting.startsWith("MII") ?"RSA" :"EC");
+    KeyFactory kf = KeyFactory.getInstance(interesting.startsWith("MII") ? "RSA" : "EC");
     return kf.generatePublic(new X509EncodedKeySpec(encoded));
   }
-
 }

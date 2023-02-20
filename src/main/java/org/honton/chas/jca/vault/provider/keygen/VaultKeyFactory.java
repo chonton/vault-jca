@@ -44,12 +44,15 @@ public class VaultKeyFactory {
       return new VaultRsaPrivateKey(publicKey.getName(), publicKey.getVersion());
     }
     if (publicKey instanceof VaultEcdsaPublicKey) {
-      return new VaultEcdsaPrivateKey(publicKey.getName(), publicKey.getVersion());
+      return new VaultEcdsaPrivateKey(
+          publicKey.getName(),
+          publicKey.getVersion(),
+          ((VaultEcdsaPublicKey) publicKey).getParams());
     }
     throw new UnsupportedOperationException("Unsupported key type ");
   }
 
-  private Entry<String, Map<String, String>> latestKey(Map<String, Object> result) {
+  public Entry<String, Map<String, String>> latestKey(Map<String, Object> result) {
     Map<String, Map<String, String>> keys = VaultApi.walkPath(result, "keys");
     return keys.entrySet().stream().reduce(VaultKeyFactory::max).orElseThrow();
   }

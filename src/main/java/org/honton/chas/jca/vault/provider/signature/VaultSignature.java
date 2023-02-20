@@ -1,8 +1,8 @@
 package org.honton.chas.jca.vault.provider.signature;
 
+import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
-import java.security.MessageDigest;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SignatureException;
@@ -11,22 +11,24 @@ import lombok.SneakyThrows;
 import org.honton.chas.jca.vault.provider.VaultPrivateKey;
 import org.honton.chas.jca.vault.provider.VaultPublicKey;
 import org.honton.chas.vault.api.VaultApi;
+import org.honton.chas.vault.api.VaultClient;
 
 public class VaultSignature extends SignatureSpi {
 
-  private final VaultApi vaultApi;
   private final SignatureAlgorithm signatureAlgorithm;
-  private final MessageDigest predigested;
-  private boolean inProgress;
+  private final ByteBuffer data;
 
   private VaultPublicKey vaultPublicKey;
   private VaultPrivateKey vaultPrivateKey;
 
   @SneakyThrows
-  public VaultSignature(VaultApi vaultApi, SignatureAlgorithm signatureAlgorithm) {
-    this.vaultApi = vaultApi;
-    this.signatureAlgorithm=signatureAlgorithm;
-    predigested = MessageDigest.getInstance(signatureAlgorithm.getJcaDigestAlgorithm());
+  public VaultSignature(SignatureAlgorithm signatureAlgorithm) {
+    this.signatureAlgorithm = signatureAlgorithm;
+    data = ByteBuffer.allocate(4000);
+  }
+
+  protected VaultApi getVaultInstance() {
+    return VaultClient.INSTANCE;
   }
 
   /**
@@ -39,7 +41,7 @@ public class VaultSignature extends SignatureSpi {
   @Override
   protected void engineInitVerify(PublicKey publicKey) {
     vaultPublicKey = (VaultPublicKey) publicKey;
-    resetDigest();
+    data.clear();
   }
 
   /**
@@ -52,7 +54,7 @@ public class VaultSignature extends SignatureSpi {
   @Override
   protected void engineInitSign(PrivateKey privateKey) {
     vaultPrivateKey = (VaultPrivateKey) privateKey;
-    resetDigest();
+    data.clear();
   }
 
   /**
@@ -63,8 +65,7 @@ public class VaultSignature extends SignatureSpi {
    */
   @Override
   protected void engineUpdate(byte b) {
-    predigested.update(b);
-    inProgress = true;
+    data.put(b);
   }
 
   /**
@@ -78,8 +79,7 @@ public class VaultSignature extends SignatureSpi {
    */
   @Override
   protected void engineUpdate(byte[] b, int off, int len) {
-    predigested.update(b, off, len);
-    inProgress = true;
+    data.put(b, off, len);
   }
 
   /**
@@ -92,9 +92,13 @@ public class VaultSignature extends SignatureSpi {
    */
   @Override
   protected byte[] engineSign() {
-    return vaultApi.signData(vaultPrivateKey.getName(), vaultPrivateKey.getVersion(),
-        signatureAlgorithm.getVaultSignatureAlgorithm(),
-        signatureAlgorithm.getVaultHashAlgorithm(), getPredigested());
+    return getVaultInstance()
+        .signData(
+            vaultPrivateKey.getName(),
+            vaultPrivateKey.getVersion(),
+            signatureAlgorithm.getVaultSignatureAlgorithm(),
+            signatureAlgorithm.getVaultHashAlgorithm(),
+            data.flip());
   }
 
   /**
@@ -108,12 +112,14 @@ public class VaultSignature extends SignatureSpi {
    */
   @Override
   protected boolean engineVerify(byte[] sigBytes) throws SignatureException {
-    return vaultApi.verifySignedData(
-        vaultPublicKey.getName(),
-        vaultPublicKey.getVersion(),
-        signatureAlgorithm.getVaultSignatureAlgorithm(),
-        signatureAlgorithm.getVaultHashAlgorithm(),
-        getPredigested(), sigBytes);
+    return getVaultInstance()
+        .verifySignedData(
+            vaultPublicKey.getName(),
+            vaultPublicKey.getVersion(),
+            signatureAlgorithm.getVaultSignatureAlgorithm(),
+            signatureAlgorithm.getVaultHashAlgorithm(),
+            data.flip(),
+            sigBytes);
   }
 
   @Override
@@ -124,17 +130,5 @@ public class VaultSignature extends SignatureSpi {
   @Override
   protected Object engineGetParameter(String param) throws InvalidParameterException {
     throw new UnsupportedOperationException();
-  }
-
-  private void resetDigest() {
-    if (inProgress) {
-      predigested.reset();
-      inProgress = false;
-    }
-  }
-
-  private byte[] getPredigested() {
-    inProgress = false;
-    return predigested.digest();
   }
 }

@@ -1,10 +1,13 @@
 package org.honton.chas.jca.vault.provider.signature;
 
+import java.security.spec.AlgorithmParameterSpec;
+import java.security.spec.MGF1ParameterSpec;
+import java.security.spec.PSSParameterSpec;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.honton.chas.jca.vault.provider.keygen.VaultKeyAlgorithm;
+import org.honton.chas.jca.vault.provider.keygen.VaultParameterSpec;
 import org.honton.chas.jca.vault.provider.keygen.ecdsa.VaultEcdsaKeyAlgorithm;
-import org.honton.chas.jca.vault.provider.keygen.rsa.VaultRsaKeyAlgorithm;
+import org.honton.chas.jca.vault.provider.keygen.rsa.VaultRsaKeyType;
 
 public enum SignatureAlgorithm {
   RSASSA_PSS_SHA_256,
@@ -24,8 +27,8 @@ public enum SignatureAlgorithm {
 
   SignatureAlgorithm() {
     String name = name();
-    shaSize = getShaSize(name);
     keyAlgorithm = keyAlgorithm(name);
+    shaSize = getShaSize(name);
   }
 
   private static KeyAlgorithm keyAlgorithm(String name) {
@@ -52,16 +55,15 @@ public enum SignatureAlgorithm {
     return keyAlgorithm.jcaSignatureAlgorithm(shaSize);
   }
 
-  // https://docs.oracle.com/en/java/javase/17/docs/specs/security/standard-names.html#messagedigest-algorithms
-  public String getJcaDigestAlgorithm() {
-    return "SHA-" + shaSize;
+  public AlgorithmParameterSpec getJcaParameterSpec() {
+    return keyAlgorithm.jcaParameterSpec("SHA-" + shaSize);
   }
 
   public String getVaultHashAlgorithm() {
     return "sha2-" + shaSize;
   }
 
-  public VaultKeyAlgorithm getVaultKeyAlgorithm() {
+  public VaultParameterSpec getVaultKeyAlgorithm() {
     return keyAlgorithm.vaultKeyAlgorithm(shaSize);
   }
 
@@ -72,19 +74,25 @@ public enum SignatureAlgorithm {
   @RequiredArgsConstructor
   @Getter
   enum KeyAlgorithm {
+    RSASSA_PKCS("RSA", "pkcs1v15"),
     RSASSA_PSS("RSASSA-PSS", "pss") {
       @Override
       String jcaSignatureAlgorithm(String shaSize) {
-        return "RSASSA-PSS/SHA" + shaSize;
+        return super.jcaSignatureAlgorithm(shaSize) + "andMGF1";
       }
-
-    },
-    RSASSA_PKCS("RSA", "pkcs1v15") {
       @Override
-      String jcaSignatureAlgorithm(String shaSize) {
-        return "SHA" + shaSize + "withRSA";
+      PSSParameterSpec jcaParameterSpec(String mdName) {
+        switch (mdName) {
+          case "SHA-256":
+            return new PSSParameterSpec(mdName, "MGF1", MGF1ParameterSpec.SHA256, 32, 1);
+          case "SHA-384":
+            return new PSSParameterSpec(mdName, "MGF1", MGF1ParameterSpec.SHA384, 48, 1);
+          case "SHA-512":
+            return new PSSParameterSpec(mdName, "MGF1", MGF1ParameterSpec.SHA512, 64, 1);
+          default:
+            throw new UnsupportedOperationException(mdName);
+        }
       }
-
     },
     ECDSA("EC", null) {
       @Override
@@ -93,14 +101,16 @@ public enum SignatureAlgorithm {
       }
 
       @Override
-      VaultKeyAlgorithm vaultKeyAlgorithm(String shaSize) {
+      VaultParameterSpec vaultKeyAlgorithm(String shaSize) {
         switch (shaSize) {
           case "256":
             return VaultEcdsaKeyAlgorithm.ECDSA_P256;
           case "384":
             return VaultEcdsaKeyAlgorithm.ECDSA_P384;
-          default:
+          case "512":
             return VaultEcdsaKeyAlgorithm.ECDSA_P521;
+          default:
+            throw new UnsupportedOperationException(shaSize);
         }
       }
     };
@@ -108,16 +118,24 @@ public enum SignatureAlgorithm {
     private final String jcaKeyAlgorithm;
     private final String vaultSignatureAlgorithm;
 
-    abstract String jcaSignatureAlgorithm(String shaSize);
+    String jcaSignatureAlgorithm(String shaSize) {
+      return "SHA" + shaSize + "withRSA";
+    }
 
-    VaultKeyAlgorithm vaultKeyAlgorithm(String shaSize) {
+    AlgorithmParameterSpec jcaParameterSpec(String mdName) {
+      return null;
+    }
+
+    VaultParameterSpec vaultKeyAlgorithm(String shaSize) {
       switch (shaSize) {
         case "256":
-          return VaultRsaKeyAlgorithm.RSA_2048;
+          return VaultRsaKeyType.RSA_2048;
         case "384":
-          return VaultRsaKeyAlgorithm.RSA_3072;
+          return VaultRsaKeyType.RSA_3072;
+        case "512":
+          return VaultRsaKeyType.RSA_4096;
         default:
-          return VaultRsaKeyAlgorithm.RSA_4096;
+          throw new UnsupportedOperationException(shaSize);
       }
     }
   }

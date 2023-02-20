@@ -75,8 +75,7 @@ public class RelyingParty {
         new JwtConsumerBuilder()
             .setSkipDefaultAudienceValidation()
             .setExpectedIssuer(issuer)
-            .setVerificationKeyResolver(
-                new HttpsJwksVerificationKeyResolver(httpsJkws))
+            .setVerificationKeyResolver(new HttpsJwksVerificationKeyResolver(httpsJkws))
             .setRequireExpirationTime()
             .setRequireSubject()
             .setJwsAlgorithmConstraints(

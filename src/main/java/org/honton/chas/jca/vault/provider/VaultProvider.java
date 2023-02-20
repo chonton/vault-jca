@@ -1,27 +1,27 @@
 package org.honton.chas.jca.vault.provider;
 
+import java.nio.file.ProviderNotFoundException;
 import java.security.Provider;
+import java.security.Security;
+import java.security.spec.AlgorithmParameterSpec;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import lombok.NonNull;
+import java.util.ServiceLoader;
+import java.util.function.Supplier;
 import org.honton.chas.jca.vault.provider.keygen.VaultKeyGenerator;
-import org.honton.chas.jca.vault.provider.keygen.VaultKeyAlgorithm;
-import org.honton.chas.jca.vault.provider.keygen.VaultParameterSpec;
+import org.honton.chas.jca.vault.provider.keygen.VaultKeyInfo;
 import org.honton.chas.jca.vault.provider.keygen.ecdsa.VaultEcdsaKeyGenerator;
 import org.honton.chas.jca.vault.provider.keygen.rsa.VaultRsaKeyGenerator;
 import org.honton.chas.jca.vault.provider.keystore.VaultKeyStore;
 import org.honton.chas.jca.vault.provider.signature.SignatureAlgorithm;
 import org.honton.chas.jca.vault.provider.signature.VaultSignature;
-import org.honton.chas.vault.api.VaultApi;
 
 public final class VaultProvider extends Provider {
 
-  private final VaultApi vaultApi;
+  public static final String NAME = "Vault";
 
-  public VaultProvider(@NonNull VaultApi vaultApi) {
-    super("Vault", "1.0", "Hashicorp Vault Provider");
-    this.vaultApi = vaultApi;
+  public VaultProvider() {
+    super(NAME, "1.0", "Hashicorp Vault Provider");
 
     putService(
         new VaultKeyPairGeneratorService<>(
@@ -40,48 +40,56 @@ public final class VaultProvider extends Provider {
     }
   }
 
+  public static Provider register() {
+    Provider vault = Security.getProvider(NAME);
+    if (vault == null) {
+      ServiceLoader<Provider> sl = ServiceLoader.load(java.security.Provider.class);
+      vault =
+          sl.stream()
+              .filter(pp -> pp.get().getName().equals(NAME))
+              .findFirst()
+              .orElseThrow(() -> new ProviderNotFoundException("Vault is missing"))
+              .get();
+      Security.addProvider(vault);
+    }
+    return vault;
+  }
+
   /*
   Provider is a Properties! We should provide a better equals / hashCode
    */
   @Override
   @SuppressWarnings("java:S3551") // don't make method synchronized
   public boolean equals(Object o) {
-    return o instanceof VaultProvider && vaultApi.equals(((VaultProvider) o).vaultApi);
+    return o instanceof VaultProvider;
   }
 
   @Override
   @SuppressWarnings("java:S3551") // don't make method synchronized
   public int hashCode() {
-    return vaultApi.hashCode();
+    return getClass().hashCode();
   }
 
   private class VaultKeyStoreService extends Service {
     private VaultKeyStoreService() {
       super(
-          VaultProvider.this,
-          "KeyStore",
-          "Vault",
-          VaultKeyStore.class.getName(),
-          List.of(),
-          Map.of());
+          VaultProvider.this, "KeyStore", NAME, VaultKeyStore.class.getName(), List.of(), Map.of());
     }
 
     @Override
     public Object newInstance(Object constructorParameter) {
-      return new VaultKeyStore(vaultApi);
+      return new VaultKeyStore();
     }
   }
 
   private class VaultKeyPairGeneratorService<
-          K extends VaultKeyAlgorithm,
-          P extends VaultParameterSpec<K>,
-          T extends VaultKeyGenerator<K, P>>
+          P extends AlgorithmParameterSpec & VaultKeyInfo, T extends VaultKeyGenerator<P>>
       extends Service {
 
-    Function<VaultApi, T> ctr;
+    Supplier<T> ctr;
 
     private VaultKeyPairGeneratorService(
-        String keyPairGeneratorAlgorithm, Class<T> generatorClass, Function<VaultApi, T> ctr) {
+        String keyPairGeneratorAlgorithm, Class<T> generatorClass, Supplier<T> ctr) {
       super(
           VaultProvider.this,
           "KeyPairGenerator",
@@ -94,7 +102,7 @@ public final class VaultProvider extends Provider {
 
     @Override
     public Object newInstance(Object constructorParameter) {
-      return ctr.apply(vaultApi);
+      return ctr.get();
     }
   }
 
@@ -115,7 +123,7 @@ public final class VaultProvider extends Provider {
 
     @Override
     public Object newInstance(Object constructorParameter) {
-      return new VaultSignature(vaultApi, algorithm);
+      return new VaultSignature(algorithm);
     }
   }
 }

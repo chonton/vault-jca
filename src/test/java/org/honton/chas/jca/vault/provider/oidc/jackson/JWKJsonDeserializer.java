@@ -17,9 +17,11 @@ public class JWKJsonDeserializer extends StdDeserializer<JsonWebKey> {
   }
 
   @Override
-  public JsonWebKey deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
+  public JsonWebKey deserialize(
+      JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
     try {
-      Map<String,Object> params = jsonParser.readValueAs(new TypeReference<Map<String, Object>>(){});
+      Map<String, Object> params =
+          jsonParser.readValueAs(new TypeReference<Map<String, Object>>() {});
       return JsonWebKey.Factory.newJwk(params);
     } catch (JoseException e) {
       throw new JsonParseException(jsonParser, "Unable to parse Json Web Key");

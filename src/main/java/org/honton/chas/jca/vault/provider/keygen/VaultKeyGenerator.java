@@ -9,18 +9,22 @@ import java.security.spec.AlgorithmParameterSpec;
 import java.time.Duration;
 import lombok.NonNull;
 import org.honton.chas.vault.api.VaultApi;
+import org.honton.chas.vault.api.VaultClient;
 
-public class VaultKeyGenerator<K extends VaultKeyAlgorithm, P extends VaultParameterSpec<K>> extends KeyPairGeneratorSpi {
+public class VaultKeyGenerator<P extends AlgorithmParameterSpec & VaultKeyInfo>
+    extends KeyPairGeneratorSpi {
 
-  private final VaultApi vaultApi;
   private final Class<P> vaultParameterSpecClass;
 
   private P vaultParameterSpec;
   private String rotation;
 
-  protected VaultKeyGenerator(@NonNull VaultApi vaultApi, @NonNull Class<P> vaultParameterSpecClass) {
-    this.vaultApi = vaultApi;
-    this.vaultParameterSpecClass=vaultParameterSpecClass;
+  protected VaultKeyGenerator(@NonNull Class<P> vaultParameterSpecClass) {
+    this.vaultParameterSpecClass = vaultParameterSpecClass;
+  }
+
+  protected VaultApi getVaultInstance() {
+    return VaultClient.INSTANCE;
   }
 
   /**
@@ -71,11 +75,13 @@ public class VaultKeyGenerator<K extends VaultKeyAlgorithm, P extends VaultParam
   @Override
   public KeyPair generateKeyPair() {
     if (vaultParameterSpec == null) {
-      throw new IllegalStateException("must initialize with " + vaultParameterSpecClass.getSimpleName());
+      throw new IllegalStateException(
+          "must initialize with " + vaultParameterSpecClass.getSimpleName());
     }
 
-    String name = vaultParameterSpec.getName();
-    vaultApi.createKey(name, vaultParameterSpec.getVaultType(), rotation);
+    String name = vaultParameterSpec.getKeyName();
+    VaultApi vaultApi = getVaultInstance();
+    vaultApi.createKey(name, vaultParameterSpec.getKeyType(), rotation);
 
     return VaultKeyFactory.createKeyPair(name, vaultApi.readKey(name));
   }

@@ -1,16 +1,25 @@
 package org.honton.chas.jca.vault.provider.keygen.ecdsa;
 
+import java.security.spec.ECParameterSpec;
 import java.time.Duration;
-import org.honton.chas.jca.vault.provider.keygen.VaultParameterSpec;
+import lombok.Getter;
+import org.honton.chas.jca.vault.provider.keygen.VaultKeyInfo;
 
-public class VaultEcdsaParameterSpec extends VaultParameterSpec<VaultEcdsaKeyAlgorithm> {
+@Getter
+public class VaultEcdsaParameterSpec extends ECParameterSpec implements VaultKeyInfo {
 
-   public VaultEcdsaParameterSpec(String name, VaultEcdsaKeyAlgorithm keyType) {
-    super(name, keyType, null);
+  private final String keyName;
+  private final String keyType;
+  private final Duration rotation;
+
+  public VaultEcdsaParameterSpec(String name, VaultEcdsaKeyAlgorithm ka) {
+    this(name, ka, null);
   }
 
-  public VaultEcdsaParameterSpec(String name, VaultEcdsaKeyAlgorithm keyType,
-      Duration rotation) {
-    super(name, keyType, rotation);
+  public VaultEcdsaParameterSpec(String keyName, VaultEcdsaKeyAlgorithm ka, Duration rotation) {
+    super(ka.curve, ka.g, ka.n, ka.h);
+    this.keyName = keyName;
+    this.keyType = ka.getKeyType();
+    this.rotation = rotation;
   }
 }

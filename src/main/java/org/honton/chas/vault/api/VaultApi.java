@@ -1,12 +1,13 @@
 package org.honton.chas.vault.api;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 
 public interface VaultApi {
 
-  static VaultApi getVaultInstance(String vaultAddress, String vaultToken) {
-    return new VaultClient(vaultAddress, vaultToken);
+  static void setVaultInstance(String vaultAddress, String vaultToken) {
+    VaultClient.setVaultInstance(vaultAddress, vaultToken);
   }
 
   static <T> T walkPath(Object result, String... pathSegments) {
@@ -33,9 +34,14 @@ public interface VaultApi {
    */
   Map<String, Object> readKey(String name);
 
-  byte[] signData(String name, int version, String signatureAlgorithm, String hashAlgorithm, byte[] prehashed);
+  byte[] signData(
+      String name, int version, String signatureAlgorithm, String hashAlgorithm, ByteBuffer data);
 
-  boolean verifySignedData(String name, int version, String signatureAlgorithm,
-      String hashAlgorithm, byte[] prehashed, byte[] signature);
-
+  boolean verifySignedData(
+      String name,
+      int version,
+      String signatureAlgorithm,
+      String hashAlgorithm,
+      ByteBuffer data,
+      byte[] signature);
 }

@@ -7,22 +7,19 @@ import java.security.KeyStoreSpi;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Map;
-import java.util.Optional;
-import lombok.NonNull;
+import java.util.Map.Entry;
 import org.honton.chas.jca.vault.provider.keygen.VaultKeyFactory;
 import org.honton.chas.vault.api.VaultApi;
+import org.honton.chas.vault.api.VaultClient;
 
 public class VaultKeyStore extends KeyStoreSpi {
 
-  private final VaultApi vaultApi;
-
-  public VaultKeyStore(@NonNull VaultApi vaultApi) {
-    this.vaultApi = vaultApi;
-  }
+  public VaultKeyStore() {}
 
   private static <T> T noSupportForCertificates() {
     throw new UnsupportedOperationException("No support for certificates");
@@ -32,6 +29,10 @@ public class VaultKeyStore extends KeyStoreSpi {
     throw new UnsupportedOperationException("No support for update or delete");
   }
 
+  protected VaultApi getVaultInstance() {
+    return VaultClient.INSTANCE;
+  }
+
   /**
    * Lists all the alias names of this keystore.
    *
@@ -39,7 +40,7 @@ public class VaultKeyStore extends KeyStoreSpi {
    */
   @Override
   public Enumeration<String> engineAliases() {
-    return Collections.enumeration(vaultApi.listKeys());
+    return Collections.enumeration(getVaultInstance().listKeys());
   }
 
   /**
@@ -50,7 +51,7 @@ public class VaultKeyStore extends KeyStoreSpi {
    */
   @Override
   public boolean engineContainsAlias(String alias) {
-    return vaultApi.readKey(alias) != null;
+    return getVaultInstance().readKey(alias) != null;
   }
 
   /**
@@ -60,7 +61,7 @@ public class VaultKeyStore extends KeyStoreSpi {
    */
   @Override
   public int engineSize() {
-    return vaultApi.listKeys().size();
+    return getVaultInstance().listKeys().size();
   }
 
   /**
@@ -77,7 +78,7 @@ public class VaultKeyStore extends KeyStoreSpi {
    *     wrong).
    */
   public Key engineGetKey(String alias, char[] password) {
-    Map<String, Object> result = vaultApi.readKey(alias);
+    Map<String, Object> result = getVaultInstance().readKey(alias);
     if (result == null) {
       return null;
     }
@@ -108,14 +109,12 @@ public class VaultKeyStore extends KeyStoreSpi {
    */
   @Override
   public Date engineGetCreationDate(String alias) {
-    Map<String, Object> result = vaultApi.readKey(alias);
+    Map<String, Object> result = getVaultInstance().readKey(alias);
     if (result == null) {
       return null;
     }
-    Map<String, Number> versions = VaultApi.walkPath(result, "keys");
-    Optional<Number> max =
-        versions.values().stream().reduce((l, r) -> Math.max(l.longValue(), r.longValue()));
-    return max.map(o -> new Date(o.longValue())).orElse(null);
+    Entry<String, Map<String, String>> latestKey = VaultKeyFactory.latestKey(result);
+    return Date.from(Instant.parse(VaultApi.walkPath(latestKey.getValue(), "creation_time")));
   }
 
   @Override

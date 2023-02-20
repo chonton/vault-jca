@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.http.HttpClient;
 import java.security.GeneralSecurityException;
 import java.util.List;
+import org.honton.chas.jca.vault.provider.VaultProvider;
 import org.honton.chas.jca.vault.provider.oidc.OidcWellKnown.JsonWebKeySet;
 import org.jose4j.jwt.GeneralJwtException;
 import org.jose4j.jwt.JwtClaims;
@@ -23,14 +24,15 @@ import org.junit.jupiter.api.TestMethodOrder;
 @WireMockTest(httpsEnabled = true)
 @TestInstance(Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class OpenIdTest {
+class OpenIdIT {
 
   private final ConnectProvider connectProvider;
   private final RelyingParty relyingParty;
   private final ObjectMapper mapper;
   private final HttpClient client;
 
-  OpenIdTest() throws JoseException, GeneralSecurityException {
+  OpenIdIT() throws JoseException, GeneralSecurityException {
+    VaultProvider.register();
     connectProvider = new ConnectProvider();
     relyingParty = new RelyingParty();
     mapper = new ObjectMapper();
