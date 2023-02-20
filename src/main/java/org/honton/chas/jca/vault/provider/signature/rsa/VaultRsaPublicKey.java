@@ -6,7 +6,7 @@ import org.honton.chas.jca.vault.provider.VaultPublicKey;
 
 public class VaultRsaPublicKey extends VaultPublicKey implements RSAPublicKey {
 
-  private final RSAPublicKey delegate;
+  private final transient RSAPublicKey delegate;
 
   public VaultRsaPublicKey(String name, int version, RSAPublicKey delegate) {
     super(name, version);

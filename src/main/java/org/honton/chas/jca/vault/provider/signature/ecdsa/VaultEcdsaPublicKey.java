@@ -7,7 +7,7 @@ import org.honton.chas.jca.vault.provider.VaultPublicKey;
 
 public class VaultEcdsaPublicKey extends VaultPublicKey implements ECPublicKey {
 
-  private final ECPublicKey delegate;
+  private final transient ECPublicKey delegate;
 
   public VaultEcdsaPublicKey(String name, int version, ECPublicKey delegate) {
     super(name, version);

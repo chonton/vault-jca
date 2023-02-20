@@ -4,8 +4,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.Key;
 import java.security.KeyStoreSpi;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.time.Instant;
 import java.util.Collections;
@@ -18,8 +16,6 @@ import org.honton.chas.vault.api.VaultApi;
 import org.honton.chas.vault.api.VaultClient;
 
 public class VaultKeyStore extends KeyStoreSpi {
-
-  public VaultKeyStore() {}
 
   private static <T> T noSupportForCertificates() {
     throw new UnsupportedOperationException("No support for certificates");
@@ -73,9 +69,6 @@ public class VaultKeyStore extends KeyStoreSpi {
    * @param password the password for recovering the key
    * @return the requested key, or null if the given alias does not exist or does not identify a
    *     key-related entry.
-   * @throws NoSuchAlgorithmException if the algorithm for recovering the key cannot be found
-   * @throws UnrecoverableKeyException if the key cannot be recovered (e.g., the given password is
-   *     wrong).
    */
   public Key engineGetKey(String alias, char[] password) {
     Map<String, Object> result = getVaultInstance().readKey(alias);

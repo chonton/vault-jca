@@ -8,7 +8,7 @@ import org.honton.chas.jca.vault.provider.VaultPrivateKey;
 
 public class VaultEcdsaPrivateKey extends VaultPrivateKey implements ECPrivateKey {
 
-  @Getter private final ECParameterSpec params;
+  @Getter private final transient ECParameterSpec params;
 
   public VaultEcdsaPrivateKey(String name, int version, ECParameterSpec params) {
     super(name, version);

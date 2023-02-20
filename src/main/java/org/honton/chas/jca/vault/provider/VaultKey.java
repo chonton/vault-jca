@@ -11,6 +11,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @EqualsAndHashCode
 public abstract class VaultKey implements Key {
+
+  /**
+   * Name of key
+   */
   @NonNull private final String name;
+
+  /**
+   * Version of key
+   */
   private final int version;
 }
