@@ -19,9 +19,10 @@ for implementing KeyStore, KeyPairGenerator, and Signature algorithms.
     <dependency>
       <groupId>org.honton.chas</groupId>
       <artifactId>vault-jca</artifactId>
-      <version>1.0.0</version>
+      <version>1.1.0</version>
     </dependency>
 ```
+[Build details](https://chonton.github.io/vault-jca/index.html)
 
 # Use Cases
 
