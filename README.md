@@ -38,7 +38,7 @@ for implementing KeyStore, KeyPairGenerator, and Signature algorithms.
 
 ## KeyStore
 
-The KeyStore can fetch exiting PublicKey from Vault.
+The KeyStore can fetch existing PublicKey from Vault.
 
 ```java
     // initialize KeyStore
@@ -46,7 +46,10 @@ The KeyStore can fetch exiting PublicKey from Vault.
     keyStore.load(null, null);
 
     // get an existing Vault public key
-    PublicKey publicKey = (PublicKey) keyStore.getKey(keyName, null);
+    PublicKey publicKey = (PublicKey) keyStore.getCertificate(keyName).getPublicKey();
+
+    // get an existing Vault private key. Just a reference for use with signature.sign
+    PrivateKey privateKey = (PrivateKey) keyStore.getKey(keyName, null);
 
     // list keys
     Collections.list(keyStore.aliases());
@@ -54,7 +57,8 @@ The KeyStore can fetch exiting PublicKey from Vault.
 
 ## KeyPairGenerator
 
-The KeyPairGenerator will create a new KeyPair in Vault with the name given in the VaultParameterSpec
+The KeyPairGenerator can create a new KeyPair in Vault with the name specified in the
+VaultParameterSpec.
 
 ```java
 
@@ -80,12 +84,15 @@ The KeyPairGenerator will create a new KeyPair in Vault with the name given in t
 
 ## Signature
 
+The Signature can sign (with the PrivateKey) or verify (with the PublicKey) a message using a
+Vault key.  The keys are obtained from the KeyStore.
+
 ```java
     // algorithm is from Signature Algorithms table below
     Signature signature = Signature.getInstance(signatureAlgorithmName, NAME);
 
     // sign
-    signature.initSign(keyPair.getPrivate());
+    signature.initSign(privateKey);
     signature.update(MESSAGE);
     byte[] signatureBytes = signature.sign();
 

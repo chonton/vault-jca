@@ -3,7 +3,9 @@ package org.honton.chas.jca.vault.provider.keystore;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.Key;
+import java.security.KeyPair;
 import java.security.KeyStoreSpi;
+import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.time.Instant;
 import java.util.Collections;
@@ -11,6 +13,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.Map.Entry;
+import org.honton.chas.jca.vault.provider.VaultPublicKey;
 import org.honton.chas.jca.vault.provider.keygen.VaultKeyFactory;
 import org.honton.chas.vault.api.VaultApi;
 import org.honton.chas.vault.api.VaultClient;
@@ -75,8 +78,7 @@ public class VaultKeyStore extends KeyStoreSpi {
     if (result == null) {
       return null;
     }
-
-    return VaultKeyFactory.wrapPublicKey(alias, result);
+    return VaultKeyFactory.wrapPrivateKey(alias, result);
   }
 
   @Override
@@ -90,8 +92,39 @@ public class VaultKeyStore extends KeyStoreSpi {
   }
 
   @Override
-  public Certificate engineGetCertificate(String s) {
-    return noSupportForCertificates();
+  public Certificate engineGetCertificate(String alias) {
+    Map<String, Object> result = getVaultInstance().readKey(alias);
+    if (result == null) {
+      return null;
+    }
+
+    VaultPublicKey publicKey = VaultKeyFactory.wrapPublicKey(alias, result);
+    return new Certificate("Vault Storage") {
+      @Override
+      public byte[] getEncoded() {
+        return noSupportForCertificates();
+      }
+
+      @Override
+      public void verify(PublicKey key) {
+        noSupportForCertificates();
+      }
+
+      @Override
+      public void verify(PublicKey key, String sigProvider) {
+        noSupportForCertificates();
+      }
+
+      @Override
+      public PublicKey getPublicKey() {
+        return publicKey;
+      }
+
+      @Override
+      public String toString() {
+        return publicKey.getName();
+      }
+    };
   }
 
   /**

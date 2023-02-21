@@ -10,9 +10,11 @@ import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
+import java.security.cert.Certificate;
 import java.security.spec.AlgorithmParameterSpec;
 import java.util.Collections;
 import java.util.Date;
+import org.honton.chas.jca.vault.provider.VaultPrivateKey;
 import org.honton.chas.jca.vault.provider.VaultProvider;
 import org.honton.chas.jca.vault.provider.VaultPublicKey;
 import org.honton.chas.jca.vault.provider.keygen.VaultParameterSpec;
@@ -78,7 +80,11 @@ class VaultSignatureIT {
     verify(signature, keyPair.getPublic(), signatureBytes);
 
     Assertions.assertTrue(keyStore.containsAlias(signAlgorithm.name()));
-    PublicKey publicKey = (PublicKey) keyStore.getKey(signAlgorithm.name(), null);
+    PrivateKey privateKey = (PrivateKey) keyStore.getKey(signAlgorithm.name(), null);
+    Assertions.assertEquals(keyPair.getPublic(), privateKey);
+
+    Certificate certificate = keyStore.getCertificate(signAlgorithm.name());
+    PublicKey publicKey = certificate.getPublicKey();
     Assertions.assertEquals(keyPair.getPublic(), publicKey);
 
     AlgorithmParameterSpec jcaParameterSpec = signAlgorithm.getJcaParameterSpec();
@@ -96,7 +102,8 @@ class VaultSignatureIT {
   @Test
   void listKeys() throws GeneralSecurityException {
     for (String alias : Collections.list(keyStore.aliases())) {
-      Assertions.assertTrue(keyStore.getKey(alias, null) instanceof VaultPublicKey);
+      Assertions.assertTrue(keyStore.getKey(alias, null) instanceof VaultPrivateKey);
+      Assertions.assertTrue(keyStore.getCertificate(alias).getPublicKey() instanceof VaultPublicKey);
       Date date = keyStore.getCreationDate(alias);
       Assertions.assertTrue(date.getTime() < System.currentTimeMillis());
       long diff = System.currentTimeMillis() - date.getTime();

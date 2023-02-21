@@ -1,5 +1,6 @@
 package org.honton.chas.jca.vault.provider.keygen;
 
+import java.security.Key;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -19,6 +20,14 @@ import org.honton.chas.vault.api.VaultClient;
 public class VaultKeyFactory {
 
   KeyPair createKeyPair(String name, Map<String, Object> result) {
+    return wrapKeyPair(name, result);
+  }
+
+  public static Key wrapPrivateKey(String name, Map<String, Object> result) {
+    return wrapKeyPair(name, result).getPrivate();
+  }
+
+  private KeyPair wrapKeyPair(String name, Map<String, Object> result) {
     VaultPublicKey publicKey = wrapPublicKey(name, result);
     PrivateKey privateKey = wrapPrivateKey(publicKey);
     return new KeyPair(publicKey, privateKey);
@@ -39,7 +48,7 @@ public class VaultKeyFactory {
     throw new UnsupportedOperationException("Unsupported key type " + type);
   }
 
-  private static PrivateKey wrapPrivateKey(VaultPublicKey publicKey) {
+  private PrivateKey wrapPrivateKey(VaultPublicKey publicKey) {
     if (publicKey instanceof VaultRsaPublicKey) {
       return new VaultRsaPrivateKey(publicKey.getName(), publicKey.getVersion());
     }
@@ -65,4 +74,5 @@ public class VaultKeyFactory {
   private PublicKey getPublicKey(Map<String, String> key) {
     return Pkcs8.getPublicKeyFromString(key.get("public_key"));
   }
+
 }
